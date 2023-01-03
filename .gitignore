@@ -10,4 +10,4 @@ tmp/
 #gradl
 gradle/build/
 gradle/src/
-grad/build.gradle
+gradle/build.gradle

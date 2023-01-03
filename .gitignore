@@ -13,3 +13,6 @@ tmp/
 gradle/build/
 gradle/src/
 gradle/build.gradle
+
+#macos moment
+.DS_Store

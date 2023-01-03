@@ -41,9 +41,9 @@ string toPascalCase(const string& text) {
     return result;
 }
 
-string formatArray(auto& s) {
+string formatArray(string s[]) {
     string text;
-    int arraySize = sizeof(s) / sizeof(s[0]);
+    int arraySize = s->size();
 
     for (int i = 0; i < arraySize; i++) {
         if (s[i].empty())
@@ -140,7 +140,7 @@ void createItem(item item) {
         if (!item.opt.desc[0].empty()) {
             string tooltip;
 
-            for (const auto& desc : item.opt.desc) {
+            for (const string& desc : item.opt.desc) {
                 if (!desc.empty())
                     tooltip += "\n\t\ttooltip.add(\"" + desc + "\");";
             }

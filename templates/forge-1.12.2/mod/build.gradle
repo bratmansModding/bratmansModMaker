@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+		maven { url = 'https://maven.minecraftforge.net/' }
+		mavenCentral()
+    }
+    dependencies {
+		classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+
+version = '$${MOD_VERSION}'
+group = 'com.$${AUTHOR}.$${MOD_ID}' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = '$${MOD_ID}'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    runs {
+		client {
+			workingDirectory project.file('run')
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+			property 'forge.logging.console.level', 'debug'
+		}
+		server {
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+			property 'forge.logging.console.level', 'debug'
+		}
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+}
+
+jar {
+    manifest {
+		attributes([
+			"Specification-Title": "$${MOD_ID}",
+			"Specification-Vendor": "$${AUTHOR}",
+			"Specification-Version": "$${MOD_VERSION}",
+			"Implementation-Title": "$${MOD_NAME}",
+			"Implementation-Version": "$${GAME_VERSION}",
+			"Implementation-Vendor" :"$${AUTHOR}",
+			"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+		])
+    }
+}
+
+jar.finalizedBy('reobfJar')

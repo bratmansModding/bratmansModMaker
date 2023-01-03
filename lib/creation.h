@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedValue"
 #include "files.h"
 
 // funni
@@ -128,5 +126,3 @@ struct block {
 	item item;
 	// someday
 };
-
-#pragma clang diagnostic pop

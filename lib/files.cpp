@@ -121,8 +121,6 @@ void replaceInFile(const string& path, const map <string, string>& vars) {
 	writeFile(text, path);
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "misc-no-recursion"
 void replaceInForF(const string& path, const map <string, string>& vars) {
 	for (const auto& entry : recursive_directory_iterator(path)) {
 		bool isDirectory = entry.is_directory();
@@ -143,7 +141,6 @@ void replaceInForF(const string& path, const map <string, string>& vars) {
 	}
 	cout << "Files and folders renamed\n";
 }
-#pragma clang diagnostic pop
 
 void cleanup() {
 	remove_all("../tmp");

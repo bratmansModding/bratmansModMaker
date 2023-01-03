@@ -1,8 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedValue"
-
 #include <ranges>
 #include "creation.h"
 #include "files.cpp"
@@ -180,6 +175,3 @@ void build(const string& s = "build") {
 		}
 	}
 }
-
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop

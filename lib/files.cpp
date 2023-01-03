@@ -70,7 +70,7 @@ void copyForF(const string& src, const string& target) {
 
     try {
         if (is_directory(src)) {
-            for (const auto &entry: recursive_directory_iterator(src)) {
+            for (const auto& entry: recursive_directory_iterator(src)) {
                 string path = entry.path().string();
                 string newPath = target + path.substr(src.length());
 

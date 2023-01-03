@@ -75,18 +75,17 @@ void createMod(mod mod) {
 					{"MOD_ID", MOD_ID},
 					{"AUTHOR", AUTHOR},
 					{"GAME_VERSION", gameVersionMap[mod.gameVersion]},
-					{"MOD_PACKAGE", AUTHOR + '.' + MOD_ID}
-	};
-	map <string, string> optModMap = {
-					{"MOD_DESCRIPTION", mod.opt.description},
-					{"MOD_URL", mod.opt.url},
-					{"MOD_UPDATE_URL", mod.opt.updateUrl},
-					{"MOD_CREDITS", mod.opt.credits},
-					{"MOD_LOGO_FILE", mod.opt.logoFile},
-					{"MOD_PARENT", mod.opt.parent},
-					{"AUTHORS", formatArray(mod.opt.authors)},
-					{"MOD_SCREENSHOTS", formatArray(mod.opt.screenshots)},
-					{"MOD_DEPENDENCIES", formatArray(mod.opt.dependencies)}
+					{"MOD_PACKAGE", AUTHOR + '.' + MOD_ID},
+                    // opts
+                    {"MOD_DESCRIPTION", mod.opt.description},
+                    {"MOD_URL", mod.opt.url},
+                    {"MOD_UPDATE_URL", mod.opt.updateUrl},
+                    {"MOD_CREDITS", mod.opt.credits},
+                    {"MOD_LOGO_FILE", mod.opt.logoFile},
+                    {"MOD_PARENT", mod.opt.parent},
+                    {"AUTHORS", formatArray(mod.opt.authors)},
+                    {"MOD_SCREENSHOTS", formatArray(mod.opt.screenshots)},
+                    {"MOD_DEPENDENCIES", formatArray(mod.opt.dependencies)}
 	};
 
 	// Cleanup old files before writing new ones
@@ -95,7 +94,6 @@ void createMod(mod mod) {
 	// Copy everything from the template to ouput and replace all the variables in it
 	copyForF(TEMPLATE_PATH + "/mod", MOD_PATH);
 	replaceInForF(MOD_PATH, modMap);
-	replaceInForF(MOD_PATH, optModMap);
 }
 
 void createItem(item item) {
@@ -109,8 +107,7 @@ void createItem(item item) {
 					{"AUTHOR", AUTHOR},
 					{"ITEM_ID", ITEM_ID},
 					{"ITEM_NAME", item.name},
-					{"ITEM_CLASS", ITEM_CLASS},
-					{"ITEM_DESCRIPTION", item.opt.desc[0]}
+					{"ITEM_CLASS", ITEM_CLASS}
 	};
 
 	// Paths

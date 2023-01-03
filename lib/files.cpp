@@ -43,6 +43,24 @@ void writeFile(const string& data, const string& path, bool append = false) {
     cout << "File " << (append ? "appended" : "written") << " to " << path << '\n';
 }
 
+string readFile(const string& path) {
+    std::ifstream indata(path);
+
+    if (!indata.is_open()) {
+        cerr << "Error: file could not be opened\n";
+        return "";
+    }
+
+    string data;
+    string line;
+    while (getline(indata, line)) {
+        data += line + '\n';
+    }
+    indata.close();
+
+    return data;
+}
+
 void appendFileAfter(const string& data, const string& path, const string& after) {
     std::ifstream file(path, ios::out | ios::app | ios::binary);
     string text;

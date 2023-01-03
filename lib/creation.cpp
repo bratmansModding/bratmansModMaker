@@ -41,7 +41,7 @@ string toPascalCase(const string& text) {
 	return result;
 }
 
-string formatArray(string s[]) {
+string formatArray(string s[], const string& prefix = "\"", const string& suffix = "\"") {
 	string text;
 	int arraySize = s->size();
 
@@ -49,7 +49,7 @@ string formatArray(string s[]) {
 		if (s[i].empty())
 			break;
 
-		text += "\"" + s[i] + "\"";
+        text.append(prefix).append(s[i]).append(suffix);
 		if (i < arraySize - 1) {
 			if (!s[i + 1].empty()) {
 				text += ", ";
@@ -58,6 +58,16 @@ string formatArray(string s[]) {
 	}
 
 	return text;
+}
+
+void addModule(const string& modulePath, const string& filePath, map <string, string> &vars, const string& after) {
+    bool found;
+    appendFileAfter(
+            replaceInString(
+                    readFile(TEMPLATE_PATH + modulePath)
+            , vars, found)
+    , filePath, after);
+
 }
 
 void createMod(mod mod) {
@@ -107,7 +117,8 @@ void createItem(item item) {
 					{"AUTHOR", AUTHOR},
 					{"ITEM_ID", ITEM_ID},
 					{"ITEM_NAME", item.name},
-					{"ITEM_CLASS", ITEM_CLASS}
+					{"ITEM_CLASS", ITEM_CLASS},
+                    {"ITEM_FINAL", ITEM_FINAL}
 	};
 
 	// Paths
@@ -121,9 +132,7 @@ void createItem(item item) {
 	copyForF(tmpPath, MOD_PATH);
 
 	// Add the item in iteminit
-	appendFileAfter(
-		"\n\tpublic static final Item " + ITEM_FINAL + " = new " + ITEM_CLASS + "(\"" + ITEM_ID + "\");\n",
-		mainPath + "/init/ItemInit.java", "();");
+    addModule("/itemmodules/init.java", mainPath + "/init/ItemInit.java", itemMap, "();");
 
 	// Add the item to the lang file
 	writeFile(

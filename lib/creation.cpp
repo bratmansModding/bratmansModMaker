@@ -1,8 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedValue"
-
 #include <ranges>
 #include "creation.h"
 #include "files.cpp"
@@ -86,16 +81,16 @@ void createMod(mod mod) {
 					{"AUTHOR", AUTHOR},
 					{"GAME_VERSION", gameVersionMap[mod.gameVersion]},
 					{"MOD_PACKAGE", AUTHOR + '.' + MOD_ID},
-                    // opts
-                    {"MOD_DESCRIPTION", mod.opt.description},
-                    {"MOD_URL", mod.opt.url},
-                    {"MOD_UPDATE_URL", mod.opt.updateUrl},
-                    {"MOD_CREDITS", mod.opt.credits},
-                    {"MOD_LOGO_FILE", mod.opt.logoFile},
-                    {"MOD_PARENT", mod.opt.parent},
-                    {"AUTHORS", formatArray(mod.opt.authors)},
-                    {"MOD_SCREENSHOTS", formatArray(mod.opt.screenshots)},
-                    {"MOD_DEPENDENCIES", formatArray(mod.opt.dependencies)}
+					// opts
+					{"MOD_DESCRIPTION", mod.opt.description},
+					{"MOD_URL", mod.opt.url},
+					{"MOD_UPDATE_URL", mod.opt.updateUrl},
+					{"MOD_CREDITS", mod.opt.credits},
+					{"MOD_LOGO_FILE", mod.opt.logoFile},
+					{"MOD_PARENT", mod.opt.parent},
+					{"AUTHORS", formatArray(mod.opt.authors)},
+					{"MOD_SCREENSHOTS", formatArray(mod.opt.screenshots)},
+					{"MOD_DEPENDENCIES", formatArray(mod.opt.dependencies)}
 	};
 
 	// Cleanup old files before writing new ones
@@ -189,6 +184,3 @@ void build(const string& s = "build") {
 		}
 	}
 }
-
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop

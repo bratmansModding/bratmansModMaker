@@ -76,16 +76,16 @@ void createMod(mod mod) {
 					{"AUTHOR", AUTHOR},
 					{"GAME_VERSION", gameVersionMap[mod.gameVersion]},
 					{"MOD_PACKAGE", AUTHOR + '.' + MOD_ID},
-                    // opts
-                    {"MOD_DESCRIPTION", mod.opt.description},
-                    {"MOD_URL", mod.opt.url},
-                    {"MOD_UPDATE_URL", mod.opt.updateUrl},
-                    {"MOD_CREDITS", mod.opt.credits},
-                    {"MOD_LOGO_FILE", mod.opt.logoFile},
-                    {"MOD_PARENT", mod.opt.parent},
-                    {"AUTHORS", formatArray(mod.opt.authors)},
-                    {"MOD_SCREENSHOTS", formatArray(mod.opt.screenshots)},
-                    {"MOD_DEPENDENCIES", formatArray(mod.opt.dependencies)}
+					// opts
+					{"MOD_DESCRIPTION", mod.opt.description},
+					{"MOD_URL", mod.opt.url},
+					{"MOD_UPDATE_URL", mod.opt.updateUrl},
+					{"MOD_CREDITS", mod.opt.credits},
+					{"MOD_LOGO_FILE", mod.opt.logoFile},
+					{"MOD_PARENT", mod.opt.parent},
+					{"AUTHORS", formatArray(mod.opt.authors)},
+					{"MOD_SCREENSHOTS", formatArray(mod.opt.screenshots)},
+					{"MOD_DEPENDENCIES", formatArray(mod.opt.dependencies)}
 	};
 
 	// Cleanup old files before writing new ones

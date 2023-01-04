@@ -8,6 +8,7 @@ import com.$${MOD_PACKAGE}.util.IHasModel;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.world.World;
 import net.minecraft.item.*;
 

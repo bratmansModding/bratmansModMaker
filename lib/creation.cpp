@@ -36,7 +36,7 @@ string toPascalCase(const string& text) {
 	return result;
 }
 
-string formatArray(string s[], const string& prefix = "\"", const string& suffix = "\"") {
+string formatArray(string s[], const string& prefix = "\"", const string& suffix = "\"", bool comma = true) {
 	string text;
 	int arraySize = s->size();
 
@@ -45,11 +45,8 @@ string formatArray(string s[], const string& prefix = "\"", const string& suffix
 			break;
 
         text.append(prefix).append(s[i]).append(suffix);
-		if (i < arraySize - 1) {
-			if (!s[i + 1].empty()) {
-				text += ", ";
-			}
-		}
+		if (i < arraySize - 1 && !s[i + 1].empty() && comma)
+            text += ", ";
 	}
 
 	return text;
@@ -62,7 +59,6 @@ void addModule(const string& modulePath, const string& filePath, map <string, st
                     readFile(TEMPLATE_PATH + modulePath)
             , vars, found)
     , filePath, after);
-
 }
 
 void createMod(mod mod) {
@@ -97,12 +93,12 @@ void createMod(mod mod) {
 	cleanup();
 
 	// Copy everything from the template to ouput and replace all the variables in it
-	copyForF(TEMPLATE_PATH + "/mod", MOD_PATH);
-	replaceInForF(MOD_PATH, modMap);
+    copyFileOrFolder(TEMPLATE_PATH + "/mod", MOD_PATH);
+    replaceInFileOrFolder(MOD_PATH, modMap);
 }
 
 void createItem(item item) {
-	string ITEM_ID = toSnakeCase(item.name);
+	string ITEM_ID = item.opt.id.empty() ? toSnakeCase(item.name) : item.opt.id;
 	string ITEM_CLASS = item.isBasic() ? "ItemBase" : toPascalCase(item.name);
 	string ITEM_FINAL = toSnakeCase(item.name, true);
 
@@ -122,43 +118,48 @@ void createItem(item item) {
 	string mainPath = MOD_PATH + R"(\src\main\java\com\)" + AUTHOR + '\\' + MOD_ID;
 
 	// Copy everything from the template to tmp, replace everything in it, then copy it to the mod
-	copyForF(TEMPLATE_PATH + "/item", tmpPath);
-	replaceInForF(tmpPath, itemMap);
-	copyForF(tmpPath, MOD_PATH);
+    copyFileOrFolder(TEMPLATE_PATH + "/item", tmpPath);
+    replaceInFileOrFolder(tmpPath, itemMap);
+    copyFileOrFolder(tmpPath, MOD_PATH);
 
 	// Add the item in iteminit
     addModule("/itemmodules/init.java", mainPath + "/init/ItemInit.java", itemMap, "();");
 
 	// Add the item to the lang file
-	writeFile(
-		"\nitem." + ITEM_ID + ".name=" + item.name,
-		MOD_PATH + "/src/main/resources/assets/" + MOD_ID + "/lang/en_us.lang", true);
+    addModule("/itemmodules/lang.lang",
+              MOD_PATH + "/src/main/resources/assets/" + MOD_ID + "/lang/en_us.lang", itemMap, "");
 
 	// Copy texture
-	copyForF(item.texturePath, itemPath + R"(\textures\items\)" + ITEM_ID + ".png");
+    copyFileOrFolder(item.texturePath, itemPath + R"(\textures\items\)" + ITEM_ID + ".png");
 
 	if (ITEM_CLASS != "ItemBase") {
-		if (!item.opt.desc[0].empty()) {
-			string tooltip;
+        bool shiftDesc = !item.opt.shiftDesc[0].empty();
+        bool desc = !item.opt.desc[0].empty();
+        string tooltip;
 
-			for (const string& desc : item.opt.desc) {
-				if (!desc.empty())
-					tooltip += "\n\t\ttooltip.add(\"" + desc + "\");";
-			}
+        if (desc || shiftDesc) {
+            if (shiftDesc)
+                tooltip += "if (GuiScreen.isShiftKeyDown()) {" +
+                formatArray(item.opt.shiftDesc, "\n\t\t\ttooltip.add(\"", "\");", false) +
+                "\n\t\t} else {";
+            if (desc)
+                tooltip += formatArray(item.opt.desc, "\n\t\t\ttooltip.add(\"", "\");", false);
+            if (shiftDesc)
+                tooltip += "\n\t\t}";
 
-			appendFileAfter(
-				R"(    @Override
-	public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn)
-	{)" + tooltip + R"(
-	})" + "\n\n", mainPath + "/objects/items/" + ITEM_CLASS + ".java", "ItemBase {");
-		}
+            map <string, string> tooltipMap = {
+                    {"ITEM_TOOLTIP", tooltip}
+            };
+            addModule("/itemmodules/desc.java",
+                      mainPath + "/objects/items/" + ITEM_CLASS + ".java", tooltipMap, "ItemBase {");
+        }
 	}
 }
 
 void build(const string& s = "build") {
 	// Supprimer les anciens fichiers dans gradleready et passer les nouveaux
-	copyForF(MOD_PATH + "/src", GRADLE_PATH + "/src/");
-	copyForF(MOD_PATH + "/build.gradle", GRADLE_PATH + "/build.gradle");
+    copyFileOrFolder(MOD_PATH + "/src", GRADLE_PATH + "/src/");
+    copyFileOrFolder(MOD_PATH + "/build.gradle", GRADLE_PATH + "/build.gradle");
 
 	// Build
 	system("echo ----------------");

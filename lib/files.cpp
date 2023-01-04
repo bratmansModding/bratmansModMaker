@@ -3,7 +3,7 @@
 string crToCrLf(string text) {
 	string::size_type pos = 0;
 	while ((pos = text.find('\r', pos)) != string::npos) {
-		text.replace(pos, 1, "\n");
+		text.replace(pos, 1, "\r\n");
 		pos += 2;
 	}
 	return text;
@@ -27,62 +27,58 @@ void createFolderStructure(string path) {
 	}
 }
 
-void writeFile(const string& data, const string& path, bool append = false) {
-	createFolderStructure(path);
-	std::ofstream outdata(path, append ? ios::app : ios::out);
+fstream openFile(string path, std::ios_base::openmode mode) {
+    fstream file(path, mode | ios::binary);
 
-	if (!outdata.is_open()) {
-		cerr << "Error: file could not be opened\n";
-		return;
-	}
+    if (!file.is_open()) {
+        cerr << "Error: file could not be opened\n";
+        throw "File could not be opened";
+    }
 
-	outdata << crToCrLf(data);
-	outdata.close();
+    return file;
+}
 
-	cout << "File " << (append ? "appended" : "written") << " to " << path << '\n';
+void writeFile(const string& data, const string& path, std::ios_base::openmode mode = ios::out) {
+    createFolderStructure(path);
+    fstream file = openFile(path, mode);
+
+    file << crToCrLf(data);
+    file.close();
+
+    cout << "File written to " << path << '\n';
 }
 
 string readFile(const string& path) {
-    std::ifstream indata(path);
+    fstream file = openFile(path, ios::in);
+    string line, text;
 
-    if (!indata.is_open()) {
-        cerr << "Error: file could not be opened\n";
-        return "";
-    }
+    while (getline(file, line))
+        text.append(line);
 
-    string data;
-    string line;
-    while (getline(indata, line)) {
-        data += line + '\n';
-    }
-    indata.close();
-
-    return data;
+    file.close();
+    return text;
 }
 
-void appendFileAfter(const string& data, const string& path, const string& after) {
-	std::ifstream file(path, ios::out | ios::app | ios::binary);
-	string text;
+void appendFileAfter(const string& data, const string& path, const string& after = "") {
+    if (after.empty()) {
+        writeFile(data, path, ios::app);
+        return;
+    }
 
-	if (!file.is_open()) {
-		cerr << "Error: file could not be opened\n";
-		return;
-	}
+    fstream file = openFile(path, ios::in);
+    string line, text;
 
-	// Append data to the file after the given string
-	string line;
-	while (getline(file, line)) {
-		text += line;
-		if (line.find(after) != string::npos) {
-			text += data;
-		}
-	}
+    while (getline(file, line)) {
+        text += line;
+        if (line.find(after) != string::npos)
+            text += data;
+    }
 
-	file.close();
-	writeFile(text, path);
+    file.close();
+    writeFile(text, path);
 }
 
-void copyForF(const string& src, const string& target) {
+void copyFileOrFolder(const string& src, const string& target) {
 	createFolderStructure(target);
 
 	try {
@@ -126,20 +122,11 @@ string replaceInString(string s, const map <string, string>& vars, bool& found) 
 }
 
 void replaceInFile(const string& path, const map <string, string>& vars) {
-	std::ifstream file(path, ios::out | ios::app | ios::binary);
-	string text;
-	string line;
-
-	while (getline(file, line)) {
-		bool found;
-		text += replaceInString(line, vars, found);
-	}
-
-	file.close();
-	writeFile(text, path);
+    bool found;
+	writeFile(replaceInString(readFile(path), vars, found), path);
 }
 
-void replaceInForF(const string& path, const map <string, string>& vars) {
+void replaceInFileOrFolder(const string& path, const map <string, string>& vars) {
 	for (const auto& entry : recursive_directory_iterator(path)) {
 		bool isDirectory = entry.is_directory();
 		bool isFile = entry.is_regular_file();
@@ -150,14 +137,13 @@ void replaceInForF(const string& path, const map <string, string>& vars) {
 			if (found) {
 				rename(entry.path(), newPath);
 				if (isDirectory) {
-					replaceInForF(newPath, vars);
+                    replaceInFileOrFolder(newPath, vars);
 				}
 			}
 			if (isFile)
 				replaceInFile(newPath, vars);
 		}
 	}
-	cout << "Files and folders renamed\n";
 }
 
 void cleanup() {

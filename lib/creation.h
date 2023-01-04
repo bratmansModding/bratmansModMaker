@@ -83,6 +83,7 @@ struct item {
 	string name;
 	string texturePath;
 	struct opt {
+        string id;
 		string desc[16];
 		string shiftDesc[16];
 		string lore[16];

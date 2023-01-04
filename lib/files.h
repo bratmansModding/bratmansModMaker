@@ -4,6 +4,7 @@
 #include <map>
 
 using namespace std::filesystem;
+using std::fstream;
 using std::string;
 using std::cout;
 using std::cerr;

@@ -36,7 +36,7 @@ string toPascalCase(const string& text) {
 	return result;
 }
 
-string formatArray(string s[], const string& prefix = "\"", const string& suffix = "\"", bool comma = true) {
+string formatArray(string s[], const string& prefix = "\"", const string& suffix = "\"", const string& separator = ", ") {
 	string text;
 	int arraySize = s->size();
 
@@ -45,20 +45,28 @@ string formatArray(string s[], const string& prefix = "\"", const string& suffix
 			break;
 
         text.append(prefix).append(s[i]).append(suffix);
-		if (i < arraySize - 1 && !s[i + 1].empty() && comma)
-            text += ", ";
+		if (i < arraySize - 1 && !s[i + 1].empty())
+            text += separator;
 	}
 
 	return text;
 }
 
-void addModule(const string& modulePath, const string& filePath, map <string, string> &vars, const string& after) {
+void addModule(const string& modulePath, const string& filePath, map <string, string> &vars, const string& after = "") {
     bool found;
+
     appendFileAfter(
             replaceInString(
                     readFile(TEMPLATE_PATH + modulePath)
             , vars, found)
     , filePath, after);
+
+    // Automatically add imports
+    for (const auto& entry : directory_iterator(TEMPLATE_PATH + truncatePath(modulePath))) {
+        string path = entry.path().string();
+        if (path.find("imports.java") != string::npos)
+            appendFileAfter(after + '\n' + readFile(path), filePath, "// additional imports");
+    }
 }
 
 void createMod(mod mod) {
@@ -101,7 +109,6 @@ void createItem(item item) {
 	string ITEM_ID = item.opt.id.empty() ? toSnakeCase(item.name) : item.opt.id;
 	string ITEM_CLASS = item.isBasic() ? "ItemBase" : toPascalCase(item.name);
 	string ITEM_FINAL = toSnakeCase(item.name, true);
-
 	map <string, string> itemMap = {
 					{"MOD_PACKAGE", AUTHOR + '.' + MOD_ID},
 					{"MOD_ID", MOD_ID},
@@ -123,35 +130,27 @@ void createItem(item item) {
     copyFileOrFolder(tmpPath, MOD_PATH);
 
 	// Add the item in iteminit
-    addModule("/itemmodules/init.java", mainPath + "/init/ItemInit.java", itemMap, "();");
+    addModule("/itemmodules/init.java", mainPath + "/init/ItemInit.java", itemMap, "// init");
 
 	// Add the item to the lang file
     addModule("/itemmodules/lang.lang",
-              MOD_PATH + "/src/main/resources/assets/" + MOD_ID + "/lang/en_us.lang", itemMap, "");
+              MOD_PATH + "/src/main/resources/assets/" + MOD_ID + "/lang/en_us.lang", itemMap);
 
 	// Copy texture
     copyFileOrFolder(item.texturePath, itemPath + R"(\textures\items\)" + ITEM_ID + ".png");
 
 	if (ITEM_CLASS != "ItemBase") {
-        bool shiftDesc = !item.opt.shiftDesc[0].empty();
-        bool desc = !item.opt.desc[0].empty();
-        string tooltip;
+        bool shiftDesc = !item.opt.shiftDesc[0].empty(), desc = !item.opt.desc[0].empty();
 
-        if (desc || shiftDesc) {
-            if (shiftDesc)
-                tooltip += "if (GuiScreen.isShiftKeyDown()) {" +
-                formatArray(item.opt.shiftDesc, "\n\t\t\ttooltip.add(\"", "\");", false) +
-                "\n\t\t} else {";
-            if (desc)
-                tooltip += formatArray(item.opt.desc, "\n\t\t\ttooltip.add(\"", "\");", false);
-            if (shiftDesc)
-                tooltip += "\n\t\t}";
-
-            map <string, string> tooltipMap = {
-                    {"ITEM_TOOLTIP", tooltip}
+        if (shiftDesc || desc) {
+            string modulePath = shiftDesc ? "/itemmodules/shiftDesc/shiftDesc.java" : "/itemmodules/desc.java";
+            map <string, string> descMap = {
+                    {"ITEM_DESC", formatArray(item.opt.desc, "", "", "\\n")},
+                    {"ITEM_SHIFT_DESC", formatArray(item.opt.shiftDesc, "", "", "\\n")}
             };
-            addModule("/itemmodules/desc.java",
-                      mainPath + "/objects/items/" + ITEM_CLASS + ".java", tooltipMap, "ItemBase {");
+
+            addModule(modulePath,
+                      mainPath + "/objects/items/" + ITEM_CLASS + ".java", descMap, "// desc");
         }
 	}
 }

@@ -1,1 +1,1 @@
-package com.$${MOD_PACKAGE}.init;import java.util.ArrayList;import java.util.List;import com.$${MOD_PACKAGE}.objects.items.*;import net.minecraft.item.Item;public class ItemInit {	public static final List<Item> ITEMS = new ArrayList<Item>();}
+package com.$${MOD_PACKAGE}.init;import java.util.ArrayList;import java.util.List;import com.$${MOD_PACKAGE}.objects.items.*;import net.minecraft.item.Item;public class ItemInit {	public static final List<Item> ITEMS = new ArrayList<Item>();	// init}

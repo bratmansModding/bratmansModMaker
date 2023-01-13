@@ -55,10 +55,8 @@ int main() {
             .desc = {"\\u00A7f\\u00A7ogreg"}
         }
     };
-    
     createMod(salut);
     createItem(uranium);
     createItem(darkSteelSword);
     createItem(greg);
-    build();
 }

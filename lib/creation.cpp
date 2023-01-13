@@ -52,6 +52,26 @@ string formatArray(string s[], const string& prefix = "\"", const string& suffix
 	return text;
 }
 
+string formatArrayWithReplace(string s[], const string around, const string& replacementName, const string& separator = "\n") {
+    string text;
+    int arraySize = s->size();
+
+    for (int i = 0; i < arraySize; i++) {
+        if (s[i].empty())
+            break;
+
+        if (!replacementName.empty()) {
+            bool found;
+            s[i] = replaceInString(around, {{replacementName, s[i]}}, found);
+        }
+        text.append(s[i]);
+        if (i < arraySize - 1 && !s[i + 1].empty())
+            text.append(separator);
+    }
+
+    return text;
+}
+
 void addModule(const string& modulePath, const string& filePath, map <string, string> &vars, const string& after = "") {
     bool found;
 
@@ -142,11 +162,13 @@ void createItem(item item) {
 	if (ITEM_CLASS != "ItemBase") {
         bool shiftDesc = !item.opt.shiftDesc[0].empty(), desc = !item.opt.desc[0].empty();
 
-        if (shiftDesc || desc) {
+        if (desc) {
             string modulePath = shiftDesc ? "/itemmodules/shiftDesc/shiftDesc.java" : "/itemmodules/desc.java";
+            string descAdd = readFile(TEMPLATE_PATH + truncatePath(modulePath) + "/desc.add.java");
+
             map <string, string> descMap = {
-                    {"ITEM_DESC", formatArray(item.opt.desc, "", "", "\\n")},
-                    {"ITEM_SHIFT_DESC", formatArray(item.opt.shiftDesc, "", "", "\\n")}
+                    {"ITEM_DESC", formatArrayWithReplace(item.opt.desc, descAdd, "ITEM_DESC")},
+                    {"ITEM_SHIFT_DESC", formatArrayWithReplace(item.opt.shiftDesc, descAdd, "ITEM_DESC")}
             };
 
             addModule(modulePath,
